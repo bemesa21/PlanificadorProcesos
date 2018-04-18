@@ -23,8 +23,11 @@ public class Principal{
                                     PlanificadorProcesos.prioridadesApropiativo();
 				break;
 				case 2:
-					PlanificadorProcesos.roundRobin();
+                                    PlanificadorProcesos.roundRobin();
 				break;
+                                case 3:
+                                    PlanificadorProcesos.roundRobinLlegada();
+                                break;
 				default:
 					System.out.println("Opcion no valida!");
 			}

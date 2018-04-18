@@ -1,14 +1,5 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package planificadorProcesos;
 
-/**
- *
- * @author bere
- */
+package planificadorProcesos;
 /*
 Clase que define un nodo, con el cual almacenaremos procesos asi como 
 referencia al siguiente nodo.

@@ -151,4 +151,25 @@ public class Cola{
 			}
 		}
 	}
+        
+        //Metodo de ordenamiento
+        public void ordenarPorTiempoDeLlegada(){
+            if (!vacia()) {
+                int i, j;
+                Proceso proc;
+                Nodo p = tail, q;
+                while(p != null){
+                    q = tail;
+                    while(q != null){
+                        if(p.proceso.getTiempoLlegada() < q.proceso.getTiempoLlegada()){
+                            proc = q.proceso;
+                            q.proceso = p.proceso;
+                            p.proceso = proc;
+                        }
+                        q = q.siguiente;
+                    }
+                    p = p.siguiente;
+                }
+            }
+        }
 }

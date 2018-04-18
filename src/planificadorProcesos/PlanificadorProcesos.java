@@ -44,68 +44,159 @@ public class PlanificadorProcesos{
             quantum = teclado.nextInt();
        
             for (int i = 0; i < numProcesos; i++) {
-                 colaListos.insertarProceso(Menu.creaProceso());
+                 colaListos.insertarProceso(Menu.creaProcesoRoundRobin());
             }
             System.out.println("Cola de procesos en memoria, con una memoria de: "+ memoriaTotal);
 
-		//While que comprueba que la cola de procesos listos no este vacia.
-		while(!colaListos.vacia()){
-			memoria = memoriaTotal;
-			p = colaListos.head;
-			System.out.println("Cola de procesos listos:");
-			colaListos.listarCola();
-			/*
-			While que iterara sobre toda la cola de procesos listos y verificara cuales
-			se puden agregar a la cola de procesos en memoria.
-			*/
-			while(p != null){
-				//Compruebo que tengo suficiente memoria RAM.
-				if (memoria >= p.proceso.getTamanho()) {
-					colaMem.insertarProceso(p.proceso);
-					memoria-=p.proceso.getTamanho();
-					System.out.println("Se subio el proceso : "+p.proceso.getId()+" y restan "+memoria+" de memoria.");
-					colaListos.eliminarProceso(p.proceso);
-				}
-				p = p.siguiente;
-			}
+            //While que comprueba que la cola de procesos listos no este vacia.
+            while(!colaListos.vacia()){
+                    memoria = memoriaTotal;
+                    p = colaListos.head;
+                    System.out.println("Cola de procesos listos:");
+                    colaListos.listarCola();
+                    /*
+                    While que iterara sobre toda la cola de procesos listos y verificara cuales
+                    se puden agregar a la cola de procesos en memoria.
+                    */
+                    while(p != null){
+                            //Compruebo que tengo suficiente memoria RAM.
+                            if (memoria >= p.proceso.getTamanho()) {
+                                    colaMem.insertarProceso(p.proceso);
+                                    memoria-=p.proceso.getTamanho();
+                                    System.out.println("Se subio el proceso : "+p.proceso.getId()+" y restan "+memoria+" de memoria.");
+                                    colaListos.eliminarProceso(p.proceso);
+                            }
+                            p = p.siguiente;
+                    }
 
-			System.out.printf("Cola de procesos listos para ejecucion:");
-			colaMem.listarCola();
+                    System.out.printf("Cola de procesos listos para ejecucion:");
+                    colaMem.listarCola();
 
-			//Comprobamos que se haya subido algun proceso a la cola de memoria.
-			if (!colaMem.vacia()) {
-				System.out.println("No se pueden subir mas procesos!");
-				System.out.println("Ejecutando procesos en memoria...");
-				Nodo aux = colaMem.head;
-				//Iteramos sobre toda la cola.
-				while(!colaMem.vacia()){
-					//Simluamos la ejecucion en CPU del proceso, con el quantum.
-					ejecutandoProceso(aux.proceso, quantum);
-					/*
-					Comprobamos si el proceso ya termino su ejecucion, para agregarlo
-					a la cola de tiempos.
-					*/
-					if (aux.proceso.getTiempoEjecucion() > 0) {
-						colaListos.insertarProceso(aux.proceso);
-					}else{
-						colaTiempos.insertarProceso(aux.proceso);
-					}
-					//Eliminamos el proceso de la cola de memoria.
-					colaMem.eliminarProceso(aux.proceso);
-					aux = aux.siguiente;
-				}
-			}else{
-				System.out.println("No hay procesos en la cola de memoria.");
-				break;
-			}
-		}
-		//Imprimos los tiempos de cada uno de los procesos.
-		colaTiempos.listarColaConTiempos();
-		//Realizamos el calculo promedio de los procesos.
-		calcularTiempos(colaTiempos);
-		//Colocamos la variable tiempo en 0, para posteriores usos.
-		tiempo = 0;
+                    //Comprobamos que se haya subido algun proceso a la cola de memoria.
+                    if (!colaMem.vacia()) {
+                            System.out.println("No se pueden subir mas procesos!");
+                            System.out.println("Ejecutando procesos en memoria...");
+                            Nodo aux = colaMem.head;
+                            //Iteramos sobre toda la cola.
+                            while(!colaMem.vacia()){
+                                    //Simluamos la ejecucion en CPU del proceso, con el quantum.
+                                    ejecutandoProceso(aux.proceso, quantum);
+                                    /*
+                                    Comprobamos si el proceso ya termino su ejecucion, para agregarlo
+                                    a la cola de tiempos.
+                                    */
+                                    if (aux.proceso.getTiempoEjecucion() > 0) {
+                                            colaListos.insertarProceso(aux.proceso);
+                                    }else{
+                                            colaTiempos.insertarProceso(aux.proceso);
+                                    }
+                                    //Eliminamos el proceso de la cola de memoria.
+                                    colaMem.eliminarProceso(aux.proceso);
+                                    aux = aux.siguiente;
+                            }
+                    }else{
+                            System.out.println("No hay procesos en la cola de memoria.");
+                            break;
+                    }
+            }
+            //Imprimos los tiempos de cada uno de los procesos.
+            colaTiempos.listarColaConTiempos();
+            //Realizamos el calculo promedio de los procesos.
+            calcularTiempos(colaTiempos);
+            //Colocamos la variable tiempo en 0, para posteriores usos.
+            tiempo = 0;
 	}
+        
+        public static void roundRobinLlegada(){
+            /*
+            memoriaTotal: almacena el tamaño de la memoria dada por el usuario.
+            memoria: almacenara el mismo valor que memoriaTotal, pero modificaremos su valor
+            durante las iteraciones.
+            Q: almacenara el quantum para cada ejecucion del procesador.
+            */
+            int memoria, quantum;
+            colaMem = new Cola();
+            colaListos = new Cola();
+            colaTiempos = new Cola();
+            //Variable auxiliar.
+            Nodo p;  
+            Scanner teclado = new Scanner(System.in);
+            System.out.println("¿Cuántos procesos simularemos?");
+            numProcesos = teclado.nextInt();
+            System.out.println("Ingresa el tamanho de la memoria en bytes:");
+            memoriaTotal = teclado.nextInt();
+            System.out.println("Tamaño del cuantum");
+            quantum = teclado.nextInt();
+            
+            for (int i = 0; i < numProcesos; i++) {
+                 colaListos.insertarProceso(Menu.creaProceso());
+            }
+            System.out.println("Cola de procesos en memoria, con una memoria de: "+ memoriaTotal);
+            
+            colaListos.ordenarPorTiempoDeLlegada();
+            colaListos.listarCola();
+            
+            //While que comprueba que la cola de procesos listos no este vacia.
+            while(!colaListos.vacia()){
+                memoria = memoriaTotal;
+                p = colaListos.head;
+                System.out.println("Cola de procesos listos:");
+                colaListos.listarCola();
+                /*
+                While que iterara sobre toda la cola de procesos listos y verificara cuales
+                se puden agregar a la cola de procesos en memoria.
+                */
+                while(p != null){
+                        //Compruebo que tengo suficiente memoria RAM.
+                        if (memoria >= p.proceso.getTamanho()) {
+                                colaMem.insertarProceso(p.proceso);
+                                memoria-=p.proceso.getTamanho();
+                                System.out.println("Se subio el proceso : "+p.proceso.getId()+" y restan "+memoria+" de memoria.");
+                                colaListos.eliminarProceso(p.proceso);
+                        }
+                        p = p.siguiente;
+                }
+
+                System.out.printf("Cola de procesos listos para ejecucion:");
+                colaMem.listarCola();
+
+                //Comprobamos que se haya subido algun proceso a la cola de memoria.
+                if (!colaMem.vacia()) {
+                        System.out.println("No se pueden subir mas procesos!");
+                        System.out.println("Ejecutando procesos en memoria...");
+                        Nodo aux = colaMem.head;
+                        //Iteramos sobre toda la cola.
+                        while(!colaMem.vacia()){
+                            if (aux.proceso.getTiempoLlegada() <= tiempo){
+                                //Simluamos la ejecucion en CPU del proceso, con el quantum.
+                                ejecutandoProceso(aux.proceso, quantum);
+                                /*
+                                Comprobamos si el proceso ya termino su ejecucion, para agregarlo
+                                a la cola de tiempos.
+                                */
+                                if (aux.proceso.getTiempoEjecucion() > 0) {
+                                        colaListos.insertarProceso(aux.proceso);
+                                }else{
+                                        colaTiempos.insertarProceso(aux.proceso);
+                                }
+                                //Eliminamos el proceso de la cola de memoria.
+                                colaMem.eliminarProceso(aux.proceso);
+                                aux = aux.siguiente;
+                            }
+                        }
+                }else{
+                        System.out.println("No hay procesos en la cola de memoria.");
+                        break;
+                }
+            }
+            //Imprimos los tiempos de cada uno de los procesos.
+            colaTiempos.listarColaConTiempos();
+            //Realizamos el calculo promedio de los procesos.
+            calcularTiempos(colaTiempos);
+            //Colocamos la variable tiempo en 0, para posteriores usos.
+            tiempo = 0;
+        }
+        
         public static void prioridadesApropiativo(){
             colaMem = new Cola();
             colaListos = new Cola();
@@ -197,8 +288,7 @@ public class PlanificadorProcesos{
         }
         
 	public static void ejecutandoProceso(Proceso p, int Q){
-		int seg = Q,
-                    aux = 1;
+		int seg = Q;
 		while(p.getTiempoEjecucion() != 0 && Q != 0) {
 			if (p.tiempoEnSubirCPU == -1) {
 				p.tiempoEnSubirCPU = tiempo;
@@ -208,9 +298,7 @@ public class PlanificadorProcesos{
 			p.ultimoTiempoEjecucion = tiempo+1;
 			Q--;
 			p.ultimoTiempoEspera = p.ultimoTiempoEjecucion - (seg - Q);
-                        if (p.getTiempoEjecucion() >= Q) {
-                            p.tiempoQueYaSeEjecuto += 1;
-                        }
+                        p.tiempoQueYaSeEjecuto = p.constanteTiempoEjecucion - (seg - Q);
 			tiempo++;
 		}
 	}
@@ -227,6 +315,7 @@ public class PlanificadorProcesos{
 				p = p.siguiente;
 				procesos++;
 			}
+                        System.out.println("Procesos en cola: "+procesos);
 			tiempoEspera = tiempoEspera/procesos;
 			tiempoEnSubirCPU = tiempoEnSubirCPU/procesos;
 			tiempoEjecucion = tiempoEjecucion/procesos;
