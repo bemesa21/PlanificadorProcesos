@@ -207,55 +207,59 @@ public class PlanificadorProcesos{
             numProcesos = teclado.nextInt();
             System.out.println("Ingresa el tamanho de la memoria en bytes:");
             memoriaTotal = teclado.nextInt();
-       
+            //se llena cola de procesos Listos
             for (int i = 0; i < numProcesos; i++) {
                  colaListos.insertarProceso(Menu.creaProceso());
             }
+            //se ordena colaListos por tiempos de llegada
+            colaListos.ordenarPorTiempoDeLlegada();
+            tiempo=colaListos.getHead().proceso.getTiempoLlegada();
             while(!colaListos.vacia()){
                 if(colaListos.getHead().proceso.getTamanho() <= memoriaTotal ){
-                    if(procesoEnCPU == null){
+                    while(!colaListos.vacia() && colaListos.getHead().proceso.getTiempoLlegada()==tiempo){
+                        if(procesoEnCPU == null){
                         colaListos.getHead().proceso.ultimoTiempoEspera=tiempo;
                          procesoEnCPU=colaListos.getHead().proceso;
                          colaListos.sacarProceso();
+                         memoriaTotal-=procesoEnCPU.getTamanho();
                          System.out.println("Se subio el proceso : "+procesoEnCPU.getId()+" a CPU y restan "+memoriaTotal+" de memoria.");
                          procesoEnCPU.setTiempoEnSubirCPU(tiempo);
                                             
                      }else{
                            //Si el siguiente proceso en cola de listos, tiene una prioridad mayor al que está en cpu,
-                           //se apropia CPU
-                          if(colaListos.getHead().proceso.getPrioridad() > procesoEnCPU.getPrioridad() ){
-                            procesoEnCPU.setUltimoTiempoEjecucion(tiempo);
-                            procesoEnCPU.setTiempoQueYaSeEjecuto(procesoEnCPU.tiempoQueYaSeEjecuto+(procesoEnCPU.ultimoTiempoEjecucion-procesoEnCPU.ultimoTiempoEspera));
-                            procesoEnCPU.setTiempoEjecucion(procesoEnCPU.getTiempoEjecucion()-procesoEnCPU.tiempoQueYaSeEjecuto);
-                            System.out.println("El proceso : "+ colaListos.getHead().proceso.getId() +" apropio la CPU y el proceso "+procesoEnCPU.getId()+" baja a cola de listos para ejecutar.");
-                            colaListos.getHead().proceso.tiempoEnSubirCPU = tiempo;
-                            System.out.println("Restan : "+memoriaTotal+" de memoria.");
-                            colaMem.insertarProcesoPorPrioridad(procesoEnCPU);
-                            colaListos.getHead().proceso.ultimoTiempoEspera=tiempo;
-                            memoriaTotal+=procesoEnCPU.getTamanho();
-                            procesoEnCPU=colaListos.getHead().proceso;
-                            memoriaTotal-=procesoEnCPU.getTamanho();
-                            colaListos.sacarProceso();
- 
+                           //se apropia CP
+                           if(colaListos.getHead().proceso.getPrioridad() > procesoEnCPU.getPrioridad() ){
+                          
+                                procesoEnCPU.setUltimoTiempoEjecucion(tiempo);
+                                 procesoEnCPU.setTiempoQueYaSeEjecuto(procesoEnCPU.tiempoQueYaSeEjecuto+(procesoEnCPU.ultimoTiempoEjecucion-procesoEnCPU.ultimoTiempoEspera));
+                                 procesoEnCPU.setTiempoEjecucion(procesoEnCPU.getTiempoEjecucion()-procesoEnCPU.tiempoQueYaSeEjecuto);
+                                 System.out.println("El proceso : "+ colaListos.getHead().proceso.getId() +" apropio la CPU y el proceso "+procesoEnCPU.getId()+" baja a cola de listos para ejecutar.");
+                                 colaListos.getHead().proceso.tiempoEnSubirCPU = tiempo;
+                                 System.out.println("Restan : "+memoriaTotal+" de memoria.");
+                                colaMem.insertarProcesoPorPrioridad(procesoEnCPU);
+                                colaListos.getHead().proceso.ultimoTiempoEspera=tiempo;
+                                memoriaTotal+=procesoEnCPU.getTamanho();
+                                procesoEnCPU=colaListos.getHead().proceso;
+                                memoriaTotal-=procesoEnCPU.getTamanho();
+                                colaListos.sacarProceso();
                             }else{
                                 colaMem.insertarProcesoPorPrioridad(colaListos.getHead().proceso);
                                 memoriaTotal-=colaListos.getHead().proceso.getTamanho();
                                 System.out.println("Se subio el proceso : "+colaListos.getHead().proceso.getId()+" y restan "+memoriaTotal+" de memoria.");
                                 colaListos.sacarProceso();
                             }
+                        }
                     }
-                }else
-                    System.out.println("No hay memoria suficiente");
-                
-                
+                    
+                    
+                }else{
+                   System.out.println("No hay memoria suficiente");
+                   break;
+                }
                 tiempo+=1;
-                System.out.println("tiempo subiendo procesos: " + tiempo);
-
-            } 
+            }
             tiempo-=1;
 
-            colaMem.listarColaConTiempos();
-            procesoEnCPU.datosProceso();
             while(procesoEnCPU != null){
                 for (int i = 0; i < procesoEnCPU.getTiempoEjecucion(); i++) {
                     tiempo++;
@@ -283,7 +287,7 @@ public class PlanificadorProcesos{
             
             colaTiempos.listarColaConTiempos();
             calcularTiempos(colaTiempos);
-            tiempo=0; //por si se ejecuta de nuevo el proceso
+            
             
         }
         
