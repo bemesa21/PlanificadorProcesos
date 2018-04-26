@@ -51,43 +51,48 @@ public class Cola{
          public void insertarProcesoPorPrioridad(Proceso p){
             Nodo n = new Nodo(p);
             Nodo aux,aux2;
+            //la cola esta vacia
             if(vacia()){
                 head = tail = n;
-            }else{
+            }
+            //la cola contiene algo, mandamos a recorrer COla en busca de lugar
+            else{
+                //
                 aux=recorreBuscandoLugar(n);
                 if(aux !=  null){
                     if (aux == head){
-                      head=n;
-                      aux.anterior = n;
-                      n.siguiente = aux; 
+                        head.anterior=n;
+                        head=n;
+                        head.siguiente=aux;
                     }else{
-                        aux2= aux.anterior;
-                        aux.anterior=n;
-                        n.siguiente=aux;
-                        n.anterior=aux2;
+                       aux2=aux.anterior;
+                       aux2.siguiente=n;
+                       n.anterior=aux.anterior;
+                       aux.anterior=n;
+                       n.siguiente=aux;
                    }
                     
                 }else{
-                    aux.siguiente = n;
-                    n.anterior = aux;
+                    n.anterior=tail;
                     tail=n;
                 }
             } 
         }
 
-        //retorna el nodo en la cola cuya prioridad es menor al nodo a insertar
-        //asi entonces lo insertas antes que el
+       //retornar el nodo que tenga menor prioridad que n
         public Nodo recorreBuscandoLugar(Nodo n){
+            //inicias en la cabeza
             Nodo aux=getHead();
             Nodo nodoAretornar = null;
+           //mientras no llegues a despues de la cola
             while(aux != null ){
+                //nodo que se quiere insertar tiene mayor prioridad al que recorremos
                 if( n.proceso.getPrioridad() > aux.proceso.getPrioridad()){
+                    //retornamos ese nodo, para que se inserte en su anterior
                     nodoAretornar = aux;
                     break;
                 }
-                if(n.proceso.getPrioridad() <= aux.proceso.getPrioridad()){
                         aux=aux.siguiente;
-                }
             }
             return nodoAretornar;
         }   
@@ -162,6 +167,26 @@ public class Cola{
                     q = tail;
                     while(q != null){
                         if(p.proceso.getTiempoLlegada() < q.proceso.getTiempoLlegada()){
+                            proc = q.proceso;
+                            q.proceso = p.proceso;
+                            p.proceso = proc;
+                        }
+                        q = q.siguiente;
+                    }
+                    p = p.siguiente;
+                }
+            }
+        }
+        
+          public void ordenarPorPrioridad(){
+            if (!vacia()) {
+                int i, j;
+                Proceso proc;
+                Nodo p = tail, q;
+                while(p != null){
+                    q = tail;
+                    while(q != null){
+                        if(p.proceso.getPrioridad()< q.proceso.getPrioridad()){
                             proc = q.proceso;
                             q.proceso = p.proceso;
                             p.proceso = proc;

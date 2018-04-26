@@ -150,78 +150,86 @@ public class PlanificadorProcesos{
             }
             //se ordena colaListos por tiempos de llegada
             colaListos.ordenarPorTiempoDeLlegada();
+          
+            /*primer proceso en subir es el primer proceso en cola listos*/
             tiempo=colaListos.getHead().proceso.getTiempoLlegada();
-            while(!colaListos.vacia()){
-                if(colaListos.getHead().proceso.getTamanho() <= memoriaTotal ){
-                    while(!colaListos.vacia() && colaListos.getHead().proceso.getTiempoLlegada()==tiempo){
-                        if(procesoEnCPU == null){
-                        colaListos.getHead().proceso.ultimoTiempoEspera=tiempo;
-                         procesoEnCPU=colaListos.getHead().proceso;
-                         colaListos.sacarProceso();
-                         memoriaTotal-=procesoEnCPU.getTamanho();
-                         System.out.println("Se subio el proceso : "+procesoEnCPU.getId()+" a CPU y restan "+memoriaTotal+" de memoria.");
-                         procesoEnCPU.setTiempoEnSubirCPU(tiempo);
-                                            
-                     }else{
-                           //Si el siguiente proceso en cola de listos, tiene una prioridad mayor al que está en cpu,
-                           //se apropia CP
-                           if(colaListos.getHead().proceso.getPrioridad() > procesoEnCPU.getPrioridad() ){
-                          
-                                procesoEnCPU.setUltimoTiempoEjecucion(tiempo);
-                                 procesoEnCPU.setTiempoQueYaSeEjecuto(procesoEnCPU.tiempoQueYaSeEjecuto+(procesoEnCPU.ultimoTiempoEjecucion-procesoEnCPU.ultimoTiempoEspera));
-                                 procesoEnCPU.setTiempoEjecucion(procesoEnCPU.getTiempoEjecucion()-procesoEnCPU.tiempoQueYaSeEjecuto);
-                                 System.out.println("El proceso : "+ colaListos.getHead().proceso.getId() +" apropio la CPU y el proceso "+procesoEnCPU.getId()+" baja a cola de listos para ejecutar.");
-                                 colaListos.getHead().proceso.tiempoEnSubirCPU = tiempo;
-                                 System.out.println("Restan : "+memoriaTotal+" de memoria.");
+            procesoEnCPU=colaListos.getHead().proceso;
+            procesoEnCPU.setTiempoEnSubirCPU(tiempo);
+            colaListos.sacarProceso();
+            
+            
+            while(procesoEnCPU!=null){
+                tiempo++;          
+                System.out.println("proceso en cpu " + procesoEnCPU.getId()+ "tiempo: " + tiempo);
+                procesoEnCPU.setTiempoEjecucion(procesoEnCPU.getTiempoEjecucion()-1);
+                procesoEnCPU.setUltimoTiempoEjecucion(tiempo);
+                
+                if(procesoEnCPU.getTiempoEjecucion() == 0){
+                    procesoEnCPU.setUltimoTiempoEjecucion(tiempo);
+                    colaTiempos.insertarProceso(procesoEnCPU);
+                    //cola de memoria vacia
+                        //cola listos esta vacia --> todo se ejecutaron
+                        //
+                    if (colaMem.vacia()) {
+                        if (!colaListos.vacia()) {
+                           
+                            procesoEnCPU = colaListos.getHead().proceso;
+                            procesoEnCPU.ultimoTiempoEspera=tiempo;
+                            colaListos.sacarProceso();
+                        }else{
+                            procesoEnCPU=null;
+                        }   
+                    }else{
+                            procesoEnCPU = colaMem.getHead().proceso;
+                            procesoEnCPU.ultimoTiempoEspera=tiempo;
+                            if(procesoEnCPU.tiempoEnSubirCPU==-1){
+                                   procesoEnCPU.tiempoEnSubirCPU=tiempo;
+                            }
+                            colaMem.sacarProceso();
+                    }
+                }
+                
+                    while(!colaListos.vacia() && colaListos.getHead().proceso.getTiempoLlegada() == tiempo){
+                     if(colaListos.getHead().proceso.getPrioridad() > procesoEnCPU.getPrioridad()){
+                                System.out.println("El proceso : "+ colaListos.getHead().proceso.getId() +" apropio la CPU y el proceso "+procesoEnCPU.getId()+" baja a cola de listos para ejecutar.");
                                 colaMem.insertarProcesoPorPrioridad(procesoEnCPU);
+                                //colaMem.insertarProceso(procesoEnCPU);
+                                //colaMem.ordenarPorPrioridad();
+                                procesoEnCPU.setTiempoQueYaSeEjecuto(tiempo-procesoEnCPU.getTiempoLlegada());
                                 colaListos.getHead().proceso.ultimoTiempoEspera=tiempo;
                                 memoriaTotal+=procesoEnCPU.getTamanho();
                                 procesoEnCPU=colaListos.getHead().proceso;
+                                if(procesoEnCPU.tiempoEnSubirCPU==-1){
+                                   procesoEnCPU.tiempoEnSubirCPU=tiempo;
+                                }
                                 memoriaTotal-=procesoEnCPU.getTamanho();
                                 colaListos.sacarProceso();
+                                System.out.println("Restan : "+memoriaTotal+" de memoria.");
                             }else{
+                                colaMem.listarCola();
                                 colaMem.insertarProcesoPorPrioridad(colaListos.getHead().proceso);
+                                colaMem.listarCola();
+                                System.out.println(colaListos.getHead().proceso.getPrioridad());
+                                //colaMem.insertarProceso(colaListos.getHead().proceso);
+                                //colaMem.ordenarPorPrioridad();
                                 memoriaTotal-=colaListos.getHead().proceso.getTamanho();
                                 System.out.println("Se subio el proceso : "+colaListos.getHead().proceso.getId()+" y restan "+memoriaTotal+" de memoria.");
                                 colaListos.sacarProceso();
                             }
-                        }
+                    
                     }
-                    
-                    
-                }else{
-                   System.out.println("No hay memoria suficiente");
-                   break;
-                }
-                tiempo+=1;
-            }
-            tiempo-=1;
-
-            while(procesoEnCPU != null){
-                for (int i = 0; i < procesoEnCPU.getTiempoEjecucion(); i++) {
-                    tiempo++;
-                    procesoEnCPU.setTiempoEjecucion(procesoEnCPU.getTiempoEjecucion()-1);
-                }
+                   
+           
                 
-                System.out.println("tiempo: " + tiempo);
-                procesoEnCPU.setUltimoTiempoEjecucion(tiempo);
-                if(procesoEnCPU.getTiempoEjecucion()<=0){
-                    if(colaMem.vacia() != true){
-                    colaTiempos.insertarProceso(procesoEnCPU);
-                    procesoEnCPU=colaMem.getHead().proceso;
-                    if(procesoEnCPU.tiempoEnSubirCPU==-1)
-                        procesoEnCPU.tiempoEnSubirCPU=tiempo;
-                    System.out.println(" ahora debe terminar de ejecutarse" + procesoEnCPU.getId());
-                    procesoEnCPU.setUltimoTiempoEspera(tiempo);
-                    colaMem.eliminarProceso(procesoEnCPU);   
-                    }  else{
-                        colaTiempos.insertarProceso(procesoEnCPU);
-                        procesoEnCPU=null;
-                    }
-                }
-         
+                
+                
+                
+                
             }
+
+
             
+            System.out.println("colaTiempos");
             colaTiempos.listarColaConTiempos();
             calcularTiempos(colaTiempos);
             
