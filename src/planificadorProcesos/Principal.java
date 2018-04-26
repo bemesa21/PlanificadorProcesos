@@ -13,7 +13,6 @@ import java.util.Scanner;
  */
 public class Principal{
 	public static void main(String[] args){
-		Scanner scan = new Scanner(System.in);
 		int opcion = 1;
 
 		while(true){
@@ -23,11 +22,8 @@ public class Principal{
                                     PlanificadorProcesos.prioridadesApropiativo();
 				break;
 				case 2:
-                                    PlanificadorProcesos.roundRobin();
-				break;
-                                case 3:
                                     PlanificadorProcesos.roundRobinLlegada();
-                                break;
+				break;
 				default:
 					System.out.println("Opcion no valida!");
 			}
