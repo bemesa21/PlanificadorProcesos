@@ -52,27 +52,28 @@ public class PlanificadorProcesos{
             colaProcesos.ordenarPorTiempoDeLlegada();
             //colaProcesos.listarCola();
             
+            
             //While que comprueba que la cola de procesos listos no este vacia.
             do{
                 memoria = memoriaTotal;
                 //Metodo que comprueba que procesos han llegado.
                 comprobandoTiempoLlegada(colaListos, colaProcesos);
+                /*
+                El siguiente metodo solo se usara en caso de que la maestra nos de un problema
+                en el que el primer proceso llegue en un tiempo diferente de 0.
+                */
+                if(colaListos.vacia()){
+                    p = colaProcesos.head;
+                    tiempo = p.proceso.getTiempoLlegada();
+                    System.out.println("El tiempo actual es: "+tiempo);
+                    colaListos.insertarProceso(p.proceso);
+                    colaProcesos.eliminarProceso(p.proceso);
+                }
                 System.out.println("Cola de procesos por llegar:");
                 colaProcesos.listarCola();
                 System.out.println("La cola de procesos listos es:");
                 colaListos.listarCola();
                 p = colaListos.head;
-                /*
-                El siguiente metodo solo se usara en caso de que la maestra nos de un problema
-                en el que el primer proceso llegue en un tiempo diferente de 0.
-                */
-//                while(true){
-//                    comprobandoTiempoLlegada(colaListos, colaProcesos);
-//                    if(!colaListos.vacia()){
-//                          tiempo++;
-//                    }else{
-//                          break;
-//                    }
                 /*
                 While que iterara sobre toda la cola de procesos listos y verificara cuales
                 se puden agregar a la cola de procesos en memoria.
